@@ -7,15 +7,16 @@ async function get_captcha(image_data) {
         /^data:image\/(png|jpg|jpeg|gif);base64,/,
         ""
     );
-    const params = {
-        userid: process.env.TRUECAPTCHA_USERID,
-        apikey: process.env.TRUECAPTCHA_APIKEY,
-        data: image_data,
-    };
-    const url = "https://api.apitruecaptcha.org/one/gettext";
 
-    const captcha_response = await axios.post(url, params)
-        .then((response) => {return response.data.result});
+    const captcha_response = await axios({
+        method: 'post',
+        url: "https://api.apitruecaptcha.org/one/gettext",
+        data: {
+            userid: process.env.TRUECAPTCHA_USERID,
+            apikey: process.env.TRUECAPTCHA_APIKEY,
+            data: image_data,
+        }
+    }).then((res) => {return res.data.result});
 
     return captcha_response;
 }
@@ -34,7 +35,7 @@ async function main() {
         console.log("Missing .env variables");
     } else {
         try {
-            const browser = await puppeteer.launch({ headless: true });
+            const browser = await puppeteer.launch({ headless: false });
             const page = await browser.newPage();
             await page.goto(
                 "https://mysas2.sp.edu.sg/psc/csprdstu/EMPLOYEE/SA/c/A_STDNT_ATTENDANCE.A_ATT_SUMM_STDNT.GBL"
@@ -58,7 +59,7 @@ async function main() {
             await page.type("#captchaText", captcha_result);
             await page.evaluate(`document.querySelector("#Submit").click()`);
             console.log("Loading into attendance page... (Can take up to 1min)");
-            await page.waitForNavigation({ timeout: 0 });
+            await page.waitForNavigation({ timeout: 60000 });
             console.log("Loaded! Getting attendance info...\n");
             const modules = await page.$$eval(
                 `.PSLEVEL1GRIDWBO tr[id*="trA_STU_ATT_TBL$0"]`,
