@@ -1,12 +1,6 @@
 const puppeteer = require("puppeteer");
 require("dotenv").config();
 const axios = require('axios')
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// const config = process.argv.slice(2)[0];
-// if (config === "test") {
-//     main();
-// }
 
 async function get_captcha(image_data) {
     image_data = image_data.replace(
@@ -40,7 +34,7 @@ async function main() {
         console.log("Missing .env variables");
     } else {
         try {
-            const browser = await puppeteer.launch({ headless: false });
+            const browser = await puppeteer.launch({ headless: true });
             const page = await browser.newPage();
             await page.goto(
                 "https://mysas2.sp.edu.sg/psc/csprdstu/EMPLOYEE/SA/c/A_STDNT_ATTENDANCE.A_ATT_SUMM_STDNT.GBL"
